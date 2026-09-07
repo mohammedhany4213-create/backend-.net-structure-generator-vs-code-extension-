@@ -1,10 +1,20 @@
 import * as vscode from 'vscode';
-import { generateDotnetCleanArchitecture } from './generators/dotnetGenerator';
+import {
+    generateDotnetCleanArchitecture,
+    generateDotnetNLayeredArchitecture,
+    generateDotnetVerticalSliceArchitecture,
+} from './generators/dotnetGenerator';
 
 const DOTNET_VERSIONS = [
     { label: '.NET 10', value: 'net10.0' },
     { label: '.NET 9', value: 'net9.0' },
     { label: '.NET 8', value: 'net8.0' },
+] as const;
+
+const ARCHITECTURES = [
+    { label: 'Clean Architecture', value: 'clean' as const },
+    { label: 'N-Layered Architecture', value: 'nlayered' as const },
+    { label: 'Vertical Slice Architecture', value: 'vertical-slice' as const },
 ] as const;
 
 export function activate(context: vscode.ExtensionContext) {
@@ -18,9 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
                 if (!version) return;
 
-                const architecture = await vscode.window.showQuickPick([
-                    { label: 'Clean Architecture', value: 'clean' as const },
-                ], {
+                const architecture = await vscode.window.showQuickPick(ARCHITECTURES, {
                     title: 'Backend Structure Generator',
                     placeHolder: 'Choose architecture',
                 });
@@ -55,12 +63,21 @@ export function activate(context: vscode.ExtensionContext) {
                 }, async (progress) => {
                     progress.report({ message: 'Creating .NET projects and folders...' });
 
-                    const projectRoot = await generateDotnetCleanArchitecture({
+                    const options = {
                         projectName: projectName.trim(),
                         targetFramework: version.value,
                         architecture: architecture.value,
                         destination: destination[0].fsPath,
-                    });
+                    } as const;
+
+                    let projectRoot: string;
+                    if (architecture.value === 'clean') {
+                        projectRoot = await generateDotnetCleanArchitecture(options);
+                    } else if (architecture.value === 'nlayered') {
+                        projectRoot = await generateDotnetNLayeredArchitecture(options);
+                    } else {
+                        projectRoot = await generateDotnetVerticalSliceArchitecture(options);
+                    }
 
                     const action = await vscode.window.showInformationMessage(
                         `Project ${projectName.trim()} created and built successfully.`,
