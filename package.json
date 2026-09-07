@@ -19,6 +19,13 @@
         "command": "backend-structure-generator.generate",
         "title": "Backend Structure Generator: Generate"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "backend-structure-generator.generate",
+        "key": "ctrl+alt+b",
+        "when": "editorTextFocus"
+      }
     ]
   },
   "scripts": {
