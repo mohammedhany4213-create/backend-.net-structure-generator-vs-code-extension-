@@ -7,10 +7,17 @@
 A developer-focused scaffolding extension that turns repetitive backend setup into a guided workflow — from architecture selection to a ready-to-build .NET solution.
 
 <p>
+  <a href="https://github.com/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-/stargazers"><img src="https://img.shields.io/github/stars/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-?style=for-the-badge&logo=github&label=Stars" alt="GitHub Stars" /></a>
+  <a href="https://github.com/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-/issues"><img src="https://img.shields.io/github/issues/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-?style=for-the-badge&logo=github&label=Issues" alt="GitHub Issues" /></a>
+  <a href="https://github.com/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-/commits/main/"><img src="https://img.shields.io/github/last-commit/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-?style=for-the-badge&logo=github&label=Last%20Commit" alt="Last Commit" /></a>
+  <a href="https://github.com/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-/network/members"><img src="https://img.shields.io/github/forks/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-?style=for-the-badge&logo=github&label=Forks" alt="GitHub Forks" /></a>
+</p>
+
+<p>
   <img src="https://img.shields.io/badge/VS%20Code-1.113%2B-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code" />
   <img src="https://img.shields.io/badge/.NET-8%20%7C%209%20%7C%2010-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET" />
   <img src="https://img.shields.io/badge/TypeScript-6.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/License-TBD-lightgrey?style=for-the-badge" alt="License" />
+  <img src="https://img.shields.io/badge/Status-Active%20Development-orange?style=for-the-badge" alt="Project Status" />
 </p>
 
 <p>
@@ -54,7 +61,7 @@ You get:
 │  Backend Structure Generator  │
 ├───────────────────────────────┤
 │ .NET Version                  │
-│ Architecture                  │
+│ Architecture                 │
 │ Project Type                 │
 │ API Style                    │
 │ Project Name                 │
@@ -626,7 +633,7 @@ The architecture is intentionally kept modular so future generators can be added
 
 # ⭐ Support
 
-If this project saves you time, consider giving it a ⭐ on GitHub.
+If this project saves you time, consider giving the project a ⭐ on GitHub.
 
 Feature requests, bug reports and contributions are also highly appreciated.
 
