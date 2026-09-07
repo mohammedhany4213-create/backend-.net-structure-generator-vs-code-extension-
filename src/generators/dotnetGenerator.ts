@@ -52,7 +52,7 @@ async function pathExists(target: string): Promise<boolean> {
 async function findSolutionFile(projectRoot: string, projectName: string): Promise<string> {
     const entries = await fs.readdir(projectRoot, { withFileTypes: true });
     const solution = entries.find((entry) => entry.isFile() && (entry.name.endsWith('.sln') || entry.name.endsWith('.slnx')));
-    if (!solution) throw new Error(`Could not find the generated solution file for ${projectName}.`);
+    if (!solution) {throw new Error(`Could not find the generated solution file for ${projectName}.`);}
     return solution.name;
 }
 
@@ -62,7 +62,7 @@ async function prepareProjectRoot(options: DotnetGeneratorOptions): Promise<{ pr
     }
     await ensureDotnetInstalled();
     const projectRoot = path.resolve(options.destination, options.projectName);
-    if (await pathExists(projectRoot)) throw new Error(`A folder named "${options.projectName}" already exists at the selected location.`);
+    if (await pathExists(projectRoot)) {throw new Error(`A folder named "${options.projectName}" already exists at the selected location.`);}
     const src = path.join(projectRoot, 'src');
     await fs.mkdir(src, { recursive: true });
     await runDotnet(['new', 'sln', '--name', options.projectName], projectRoot);
@@ -83,7 +83,7 @@ function webApiArgs(options: DotnetGeneratorOptions): string[] {
 }
 
 async function addProjectsToSolution(projectRoot: string, solutionFile: string, projects: string[]): Promise<void> {
-    for (const project of projects) await runDotnet(['sln', solutionFile, 'add', project], projectRoot);
+    for (const project of projects) {await runDotnet(['sln', solutionFile, 'add', project], projectRoot);}
 }
 
 async function finalizeProject(projectRoot: string, solutionFile: string, projectName: string, architecture: string, projectType: string, apiStyle?: string): Promise<void> {
@@ -117,7 +117,7 @@ export async function generateDotnetCleanArchitecture(options: DotnetGeneratorOp
     await createFolders(path.join(src, application), ['DTOs', 'Interfaces', 'Services', 'Features', 'Mappings']);
     await createFolders(path.join(src, domain), ['Entities', 'Enums', 'Exceptions', 'Interfaces', 'ValueObjects']);
     await createFolders(path.join(src, infrastructure), ['Data', 'Repositories', 'Services', 'Configurations', 'Migrations']);
-    if (options.projectType === 'webapi') await removeWebApiDefaults(path.join(src, entry));
+    if (options.projectType === 'webapi') {await removeWebApiDefaults(path.join(src, entry));}
     await finalizeProject(projectRoot, solutionFile, options.projectName, 'Clean Architecture', options.projectType, options.apiStyle === 'minimal' ? 'Minimal API' : options.projectType === 'webapi' ? 'Controllers' : undefined);
     return projectRoot;
 }
@@ -140,7 +140,7 @@ export async function generateDotnetNLayeredArchitecture(options: DotnetGenerato
     await createFolders(path.join(src, business), ['Services', 'Interfaces', 'DTOs', 'Mappings']);
     await createFolders(path.join(src, data), ['Data', 'Repositories', 'Configurations', 'Migrations']);
     await createFolders(path.join(src, models), ['Entities', 'Enums', 'DTOs']);
-    if (options.projectType === 'webapi') await removeWebApiDefaults(path.join(src, entry));
+    if (options.projectType === 'webapi') {await removeWebApiDefaults(path.join(src, entry));}
     await finalizeProject(projectRoot, solutionFile, options.projectName, 'N-Layered Architecture', options.projectType, options.apiStyle === 'minimal' ? 'Minimal API' : options.projectType === 'webapi' ? 'Controllers' : undefined);
     return projectRoot;
 }
@@ -151,7 +151,7 @@ export async function generateDotnetVerticalSliceArchitecture(options: DotnetGen
     await createProject(entryTemplate(options.projectType), entry, options.targetFramework, src, webApiArgs(options));
     await addProjectsToSolution(projectRoot, solutionFile, [path.join('src', entry, `${entry}.csproj`)]);
     await createFolders(path.join(src, entry), ['Features', 'Features/Auth', 'Features/Users', 'Features/Products', 'Features/Shared', 'Common', 'Common/Behaviors', 'Common/Exceptions', 'Common/Middleware']);
-    if (options.projectType === 'webapi') await removeWebApiDefaults(path.join(src, entry));
+    if (options.projectType === 'webapi') {await removeWebApiDefaults(path.join(src, entry));}
     await finalizeProject(projectRoot, solutionFile, options.projectName, 'Vertical Slice Architecture', options.projectType, options.apiStyle === 'minimal' ? 'Minimal API' : options.projectType === 'webapi' ? 'Controllers' : undefined);
     return projectRoot;
 }

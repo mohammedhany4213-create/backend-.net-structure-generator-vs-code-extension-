@@ -9,9 +9,7 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:backend-structure-generator.generate"
-  ],
+  
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
