@@ -8,8 +8,6 @@ const DOTNET_VERSIONS = [
 ] as const;
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Backend Structure Generator activated!');
-
     const disposable = vscode.commands.registerCommand(
         'backend-structure-generator.generate',
         async () => {
@@ -27,14 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
                     placeHolder: 'Choose architecture',
                 });
                 if (!architecture) return;
-
-                const projectType = await vscode.window.showQuickPick([
-                    { label: 'ASP.NET Core Web API', value: 'webapi' as const },
-                ], {
-                    title: 'Backend Structure Generator',
-                    placeHolder: 'Choose project type',
-                });
-                if (!projectType) return;
 
                 const projectName = await vscode.window.showInputBox({
                     title: 'Backend Structure Generator',
@@ -60,10 +50,10 @@ export function activate(context: vscode.ExtensionContext) {
 
                 await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
-                    title: `Generating ${projectName}...`,
+                    title: `Generating ${projectName.trim()}...`,
                     cancellable: false,
                 }, async (progress) => {
-                    progress.report({ message: 'Creating solution and projects...' });
+                    progress.report({ message: 'Creating .NET projects and folders...' });
 
                     const projectRoot = await generateDotnetCleanArchitecture({
                         projectName: projectName.trim(),
@@ -73,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
                     });
 
                     const action = await vscode.window.showInformationMessage(
-                        `Project ${projectName} created successfully.`,
+                        `Project ${projectName.trim()} created and built successfully.`,
                         'Open Project',
                     );
 
