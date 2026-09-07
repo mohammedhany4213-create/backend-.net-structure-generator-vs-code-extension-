@@ -1,13 +1,47 @@
 {
   "name": "backend-structure-generator",
   "displayName": "Backend Structure Generator",
-  "description": "Generate .NET backend project structures",
+  "description": "Generate clean, scalable .NET backend project structures directly from Visual Studio Code.",
   "version": "0.0.1",
+  "author": {
+    "name": "Mohamed Hany"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-.git"
+  },
+  "homepage": "https://github.com/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-#readme",
+  "bugs": {
+    "url": "https://github.com/mohammedhany4213-create/backend-.net-structure-generator-vs-code-extension-/issues"
+  },
+  "keywords": [
+    "dotnet",
+    "csharp",
+    "backend",
+    "scaffolding",
+    "architecture",
+    "clean-architecture",
+    "n-layered",
+    "vertical-slice",
+    "web-api",
+    "minimal-api",
+    "aspnet-core",
+    "project-generator"
+  ],
   "engines": {
     "vscode": "^1.113.0"
   },
   "categories": [
     "Other"
+  ],
+  "pricing": "Free",
+  "galleryBanner": {
+    "color": "#512BD4",
+    "theme": "dark"
+  },
+  "extensionKind": [
+    "workspace"
   ],
   "main": "./dist/extension.js",
   "contributes": {
