@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
                 if (!version) return;
 
                 const architecture = await vscode.window.showQuickPick([
-                    { label: 'Clean Architecture', value: 'clean' },
+                    { label: 'Clean Architecture', value: 'clean' as const },
                 ], {
                     title: 'Backend Structure Generator',
                     placeHolder: 'Choose architecture',
@@ -29,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
                 if (!architecture) return;
 
                 const projectType = await vscode.window.showQuickPick([
-                    { label: 'ASP.NET Core Web API', value: 'webapi' },
+                    { label: 'ASP.NET Core Web API', value: 'webapi' as const },
                 ], {
                     title: 'Backend Structure Generator',
                     placeHolder: 'Choose project type',
@@ -64,6 +64,7 @@ export function activate(context: vscode.ExtensionContext) {
                     cancellable: false,
                 }, async (progress) => {
                     progress.report({ message: 'Creating solution and projects...' });
+
                     const projectRoot = await generateDotnetCleanArchitecture({
                         projectName: projectName.trim(),
                         targetFramework: version.value,
