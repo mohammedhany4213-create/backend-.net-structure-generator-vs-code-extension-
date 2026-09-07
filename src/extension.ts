@@ -36,24 +36,32 @@ export function activate(context: vscode.ExtensionContext) {
             const version = await vscode.window.showQuickPick(DOTNET_VERSIONS, {
                 title: 'Backend Structure Generator', placeHolder: 'Choose .NET version',
             });
-            if (!version) return;
+            if (!version) {
+                return;
+            }
 
             const architecture = await vscode.window.showQuickPick(ARCHITECTURES, {
                 title: 'Backend Structure Generator', placeHolder: 'Choose architecture',
             });
-            if (!architecture) return;
+            if (!architecture) {
+                return;
+            }
 
             const projectType = await vscode.window.showQuickPick(PROJECT_TYPES, {
                 title: 'Backend Structure Generator', placeHolder: 'Choose project type',
             });
-            if (!projectType) return;
+            if (!projectType) {
+                return;
+            }
 
             let apiStyle: 'controllers' | 'minimal' | undefined;
             if (projectType.value === 'webapi') {
                 const selectedApiStyle = await vscode.window.showQuickPick(API_STYLES, {
                     title: 'Backend Structure Generator', placeHolder: 'Choose API style',
                 });
-                if (!selectedApiStyle) return;
+                if (!selectedApiStyle) {
+                    return;
+                }
                 apiStyle = selectedApiStyle.value;
             }
 
@@ -68,7 +76,9 @@ export function activate(context: vscode.ExtensionContext) {
                     return undefined;
                 },
             });
-            if (!projectName) return;
+            if (!projectName) {
+                return;
+            }
 
             const destination = await vscode.window.showOpenDialog({
                 title: 'Choose where to create the project',
@@ -77,7 +87,9 @@ export function activate(context: vscode.ExtensionContext) {
                 canSelectMany: false,
                 openLabel: 'Create Project Here',
             });
-            if (!destination?.[0]) return;
+            if (!destination?.[0]) {
+                return;
+            }
 
             await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
