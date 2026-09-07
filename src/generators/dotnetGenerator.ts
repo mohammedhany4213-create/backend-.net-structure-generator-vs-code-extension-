@@ -20,7 +20,11 @@ function isValidProjectName(name: string): boolean {
 
 async function runDotnet(args: string[], cwd: string): Promise<void> {
     try {
-        await execFileAsync('dotnet', args, { cwd, windowsHide: true, maxBuffer: 1024 * 1024 * 10 });
+        await execFileAsync('dotnet', args, {
+            cwd,
+            windowsHide: true,
+            maxBuffer: 10 * 1024 * 1024,
+        });
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         throw new Error(`dotnet ${args.join(' ')} failed: ${message}`);
@@ -42,103 +46,110 @@ async function createFolders(projectRoot: string, folders: string[]): Promise<vo
     );
 }
 
+async function pathExists(target: string): Promise<boolean> {
+    try {
+        await fs.access(target);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 export async function generateDotnetCleanArchitecture(options: DotnetGeneratorOptions): Promise<string> {
     if (!isValidProjectName(options.projectName)) {
         throw new Error('Invalid project name. Use letters, numbers, underscores, and dots only, starting with a letter or underscore.');
     }
 
-    const sdkVersion = await ensureDotnetInstalled();
-    const projectRoot = path.resolve(options.destination, options.projectName);
+    await ensureDotnetInstalled();
 
-    try {
-        await fs.access(projectRoot);
+    const projectRoot = path.resolve(options.destination, options.projectName);
+    if (await pathExists(projectRoot)) {
         throw new Error(`A folder named "${options.projectName}" already exists at the selected location.`);
-    } catch (error: unknown) {
-        if (error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code !== 'ENOENT') {
-            throw error;
-        }
-        if (error instanceof Error && !('code' in error)) {
-            throw error;
-        }
     }
 
-    await fs.mkdir(projectRoot, { recursive: true });
-
     const src = path.join(projectRoot, 'src');
-    const tests = path.join(projectRoot, 'tests');
     await fs.mkdir(src, { recursive: true });
-    await fs.mkdir(tests, { recursive: true });
 
     const api = `${options.projectName}.Api`;
     const application = `${options.projectName}.Application`;
     const domain = `${options.projectName}.Domain`;
     const infrastructure = `${options.projectName}.Infrastructure`;
-    const unitTests = `${options.projectName}.UnitTests`;
-    const integrationTests = `${options.projectName}.IntegrationTests`;
 
     await runDotnet(['new', 'sln', '--name', options.projectName], projectRoot);
-    await runDotnet(['new', 'webapi', '--name', api, '--framework', options.targetFramework, '--use-controllers', '--no-restore'], src);
-    await runDotnet(['new', 'classlib', '--name', application, '--framework', options.targetFramework, '--no-restore'], src);
-    await runDotnet(['new', 'classlib', '--name', domain, '--framework', options.targetFramework, '--no-restore'], src);
-    await runDotnet(['new', 'classlib', '--name', infrastructure, '--framework', options.targetFramework, '--no-restore'], src);
-    await runDotnet(['new', 'xunit', '--name', unitTests, '--framework', options.targetFramework, '--no-restore'], tests);
-    await runDotnet(['new', 'xunit', '--name', integrationTests, '--framework', options.targetFramework, '--no-restore'], tests);
+    await runDotnet(['new', 'webapi', '--name', api, '--framework', options.targetFramework, '--use-controllers'], src);
+    await runDotnet(['new', 'classlib', '--name', application, '--framework', options.targetFramework], src);
+    await runDotnet(['new', 'classlib', '--name', domain, '--framework', options.targetFramework], src);
+    await runDotnet(['new', 'classlib', '--name', infrastructure, '--framework', options.targetFramework], src);
 
     const projects = [
         path.join('src', api, `${api}.csproj`),
         path.join('src', application, `${application}.csproj`),
         path.join('src', domain, `${domain}.csproj`),
         path.join('src', infrastructure, `${infrastructure}.csproj`),
-        path.join('tests', unitTests, `${unitTests}.csproj`),
-        path.join('tests', integrationTests, `${integrationTests}.csproj`),
     ];
 
     for (const project of projects) {
         await runDotnet(['sln', `${options.projectName}.sln`, 'add', project], projectRoot);
     }
 
-    const references: Array<[string, string[]]> = [
-        [path.join('src', application, `${application}.csproj`), [path.join('src', domain, `${domain}.csproj`)]],
-        [path.join('src', infrastructure, `${infrastructure}.csproj`), [
-            path.join('src', application, `${application}.csproj`),
-            path.join('src', domain, `${domain}.csproj`),
-        ]],
-        [path.join('src', api, `${api}.csproj`), [
-            path.join('src', application, `${application}.csproj`),
-            path.join('src', infrastructure, `${infrastructure}.csproj`),
-        ]],
-        [path.join('tests', unitTests, `${unitTests}.csproj`), [
-            path.join('src', application, `${application}.csproj`),
-            path.join('src', domain, `${domain}.csproj`),
-        ]],
-        [path.join('tests', integrationTests, `${integrationTests}.csproj`), [
-            path.join('src', api, `${api}.csproj`),
-        ]],
-    ];
+    await runDotnet([
+        'add',
+        path.join('src', application, `${application}.csproj`),
+        'reference',
+        path.join('src', domain, `${domain}.csproj`),
+    ], projectRoot);
 
-    for (const [project, refs] of references) {
-        await runDotnet(['add', project, 'reference', ...refs], projectRoot);
-    }
+    await runDotnet([
+        'add',
+        path.join('src', infrastructure, `${infrastructure}.csproj`),
+        'reference',
+        path.join('src', application, `${application}.csproj`),
+        path.join('src', domain, `${domain}.csproj`),
+    ], projectRoot);
+
+    await runDotnet([
+        'add',
+        path.join('src', api, `${api}.csproj`),
+        'reference',
+        path.join('src', application, `${application}.csproj`),
+        path.join('src', infrastructure, `${infrastructure}.csproj`),
+    ], projectRoot);
 
     await createFolders(path.join(src, api), [
-        'Controllers', 'Middleware', 'Extensions', 'Filters',
+        'Controllers',
+        'Middleware',
+        'Extensions',
     ]);
     await createFolders(path.join(src, application), [
-        'DTOs', 'Interfaces', 'Services', 'Features', 'Mappings', 'Common',
+        'DTOs',
+        'Interfaces',
+        'Services',
+        'Features',
+        'Mappings',
     ]);
     await createFolders(path.join(src, domain), [
-        'Entities', 'Enums', 'Exceptions', 'Interfaces', 'ValueObjects',
+        'Entities',
+        'Enums',
+        'Exceptions',
+        'Interfaces',
+        'ValueObjects',
     ]);
     await createFolders(path.join(src, infrastructure), [
-        'Data', 'Repositories', 'Services', 'Configurations', 'Migrations',
+        'Data',
+        'Repositories',
+        'Services',
+        'Configurations',
+        'Migrations',
     ]);
-    await createFolders(path.join(tests, unitTests), ['Services', 'Features']);
-    await createFolders(path.join(tests, integrationTests), ['Controllers', 'Fixtures']);
 
-    const apiWeatherForecast = path.join(src, api, 'WeatherForecast.cs');
-    try { await fs.rm(apiWeatherForecast, { force: true }); } catch { /* ignore */ }
+    const generatedWeatherForecast = path.join(src, api, 'WeatherForecast.cs');
+    await fs.rm(generatedWeatherForecast, { force: true });
 
-    const readme = `# ${options.projectName}\n\nGenerated by Backend Structure Generator.\n\n## Architecture\n\nClean Architecture\n\n## Target Framework\n\n${options.targetFramework}\n\n## Projects\n\n- ${api}\n- ${application}\n- ${domain}\n- ${infrastructure}\n- ${unitTests}\n- ${integrationTests}\n\n## Run\n\n\\`\\`\\`bash\ndotnet restore\ndotnet build\ndotnet run --project src/${api}\n\\`\\`\\`\n\n.NET SDK detected: ${sdkVersion}\n`;
+    await runDotnet(['restore', `${options.projectName}.sln`], projectRoot);
+    await runDotnet(['build', `${options.projectName}.sln`, '--no-restore'], projectRoot);
+
+    const readme = `# ${options.projectName}\n\nGenerated by Backend Structure Generator.\n\n## Architecture\n\nClean Architecture\n\n## Target Framework\n\n${options.targetFramework}\n\n## Projects\n\n- ${api}\n- ${application}\n- ${domain}\n- ${infrastructure}\n\n## Build\n\nThe solution was restored and built successfully during generation.\n`;
+
     await fs.writeFile(path.join(projectRoot, 'README.md'), readme, 'utf8');
 
     return projectRoot;
