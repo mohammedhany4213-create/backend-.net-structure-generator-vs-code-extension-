@@ -17,6 +17,12 @@ const ARCHITECTURES = [
     { label: 'Vertical Slice Architecture', value: 'vertical-slice' as const },
 ] as const;
 
+const PROJECT_TYPES = [
+    { label: 'ASP.NET Core Web API', value: 'webapi' as const },
+    { label: 'Worker Service', value: 'worker' as const },
+    { label: 'Console Application', value: 'console' as const },
+] as const;
+
 export function activate(context: vscode.ExtensionContext) {
     const disposable = vscode.commands.registerCommand(
         'backend-structure-generator.generate',
@@ -33,6 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
                     placeHolder: 'Choose architecture',
                 });
                 if (!architecture) return;
+
+                const projectType = await vscode.window.showQuickPick(PROJECT_TYPES, {
+                    title: 'Backend Structure Generator',
+                    placeHolder: 'Choose project type',
+                });
+                if (!projectType) return;
 
                 const projectName = await vscode.window.showInputBox({
                     title: 'Backend Structure Generator',
@@ -67,6 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
                         projectName: projectName.trim(),
                         targetFramework: version.value,
                         architecture: architecture.value,
+                        projectType: projectType.value,
                         destination: destination[0].fsPath,
                     } as const;
 
